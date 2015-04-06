@@ -10,24 +10,29 @@ function VateService () {
 }
 
 function VateCtrl ($scope) {
-  $scope.hello = "Processing";
+  $scope.hello = "Poetry";
 }
 
 function ProcessingDirective ($http) {
 
   function link ($scope, el, attrs) {
 
+    var processing;
+
     var iface = {
-      getHello: function () {
+      hello: function () {
         return $scope.hello;
       },
       puts: function () {
         console.log.apply(console, arguments);
+      },
+      draw: function () {
+        processing.text("Processing", processing.width * 0.10, processing.height * 0.10);
       }
     };
 
     $http.get(attrs.vateProcessing).then(function (resp) {
-        $scope.processing = new Processing(el.get(0), resp.data, iface);
+        $scope.processing = processing = new Processing(el.get(0), resp.data, {vate: function () { return iface }});
     });
   }
 
