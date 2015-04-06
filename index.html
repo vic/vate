@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Vate</title>
+  <script src='bower_components/jquery/dist/jquery.js'></script>
+  <script src='bower_components/angular/angular.js'></script>
+  <script src='bower_components/processing/processing.js'></script>
+  <script src='bower_components/silabas/browser/silabas.js'></script>
+  <script src='vate.js'></script>
+</head>
+<body ng-app="vate" ng-controller="VateCtrl">
+  <input type="text" ng-model="hello"></body>
+  <h1>{{hello}}</h1>
+  <canvas vate-processing="vate.pde"></canvas>
+</body>
+</html>
