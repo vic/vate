@@ -18,7 +18,7 @@ void draw() {
   background(102);
   fill(0);
   text(vate.hello(), width * 0.50, height * 0.50);
-  vate.draw();
+  vate.drawWorld();
 }
 
 

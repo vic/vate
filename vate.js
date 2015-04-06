@@ -10,7 +10,8 @@ function VateService () {
 }
 
 function VateCtrl ($scope) {
-  $scope.hello = "Poetry";
+  $scope.hello = "Procesando";
+  $scope.world = "Poesía";
 }
 
 function ProcessingDirective ($http) {
@@ -26,8 +27,10 @@ function ProcessingDirective ($http) {
       puts: function () {
         console.log.apply(console, arguments);
       },
-      draw: function () {
-        processing.text("Processing", processing.width * 0.10, processing.height * 0.10);
+      drawWorld: function () {
+        _.forEach( Silabas($scope.world).syllables(), function (syllable, idx) {
+          processing.text(syllable, processing.width * 0.10, processing.height * 0.10 + (idx * 32));
+        })
       }
     };
 
