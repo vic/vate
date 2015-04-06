@@ -4,9 +4,9 @@ interface Vate {
 }
 
 Vate vate;
-
+  
 void setup() {
-  vate = this.vate();
+  vate = this.vate;
   vate.puts(this); 
 
   size(630, 360);

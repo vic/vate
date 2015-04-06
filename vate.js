@@ -20,7 +20,7 @@ function ProcessingDirective ($http) {
 
     var processing;
 
-    var iface = {
+    var vate = {
       hello: function () {
         return $scope.hello;
       },
@@ -35,7 +35,7 @@ function ProcessingDirective ($http) {
     };
 
     $http.get(attrs.vateProcessing).then(function (resp) {
-        $scope.processing = processing = new Processing(el.get(0), resp.data, {vate: function () { return iface }});
+        $scope.processing = processing = new Processing(el.get(0), resp.data, {vate: vate});
     });
   }
 
