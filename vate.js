@@ -1,6 +1,6 @@
 angular.module('vate', [])
   .service('VateService', VateService)
-  .directive('vateProcessing', ProcessingDirective)
+  .directive('vateProcessing', ProcessingJSDirective)
   .controller('VateCtrl', VateCtrl);
 
 function VateService () {
@@ -14,33 +14,34 @@ function VateCtrl ($scope) {
   $scope.world = "Poesía";
 }
 
-function ProcessingDirective ($http) {
+function Sketch ($scope, $p)  {
 
-  function link ($scope, el, attrs) {
-
-    var processing;
-
-    var vate = {
-      hello: function () {
-        return $scope.hello;
-      },
-      puts: function () {
-        console.log.apply(console, arguments);
-      },
-      drawWorld: function () {
-        _.forEach( Silabas($scope.world).syllables(), function (syllable, idx) {
-          processing.text(syllable, processing.width * 0.10, processing.height * 0.10 + (idx * 32));
-        })
-      }
-    };
-
-    $http.get(attrs.vateProcessing).then(function (resp) {
-        $scope.processing = processing = new Processing(el.get(0), resp.data, {vate: vate});
-    });
+  $p.setup = function () {
+    $p.size(630, 360);  
+    var f =  $p.createFont("Arial", 24); 
+    $p.textFont(f);      
   }
 
+  $p.draw = function draw () {
+    $p.background(102);
+    $p.fill(0);
+    $p.text($scope.hello, $p.width * 0.50, $p.height * 0.50);  
+    _.forEach( Silabas($scope.world).syllables(), function (syllable, idx) {
+       $p.text(syllable, $p.width * 0.10, $p.height * 0.10 + (idx * 32));
+    })
+  }
+
+}
+
+function ProcessingJSDirective () {
   return {
     restrict: 'A',
-    link: link 
-  }
+    link: function ($scope, el, attrs) { 
+      Processing.disableInit();
+      var canvas = el.get(0);
+      new Processing(canvas, function (processing) {
+        Sketch($scope, processing) 
+      });
+    }
+  };
 }
