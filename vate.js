@@ -20,11 +20,11 @@ function Sketch ($scope, $p)  {
     $p.size(630, 360);  
     var f =  $p.createFont("Arial", 24); 
     $p.textFont(f);      
+    $p.background(102);
+    $p.fill(0);
   }
 
   $p.draw = function draw () {
-    $p.background(102);
-    $p.fill(0);
     $p.text($scope.hello, $p.width * 0.50, $p.height * 0.50);  
     _.forEach( Silabas($scope.world).syllables(), function (syllable, idx) {
        $p.text(syllable, $p.width * 0.10, $p.height * 0.10 + (idx * 32));
