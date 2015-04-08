@@ -45,17 +45,16 @@ function SketchService ($http) {
 
       var flickrImage, flickrEffect, flickrPages;
       function flickrSearch() {
-        flickrEffect = _.sample([$p.BLEND, $p.DARKEST, $p.DIFFERENCE, $p.MULTIPLY, $p.EXCLUSION, $p.SCREEN, $p.REPLACE, $p.OVERLAY, $p.DODGE, $p.BURN, $p.ADD]);
         flickrEffect = $p.MULTIPLY;
-        var url = "https://api.flickr.com/services/rest/?method=flickr.photos.search&content_type=1&in_gallery=1&safe_search=1&&api_key=d8e63434369d2ab77750623af9c84a22&format=json&nojsoncallback=1&per_page=1&text="
+        var url = "https://api.flickr.com/services/rest/?method=flickr.photos.search&safe_search=1&api_key=d8e63434369d2ab77750623af9c84a22&format=json&nojsoncallback=1&per_page=1&tags="
         url += word;
-        var page = Math.min(_.random(flickrPages || _.random(10000)), _.random(10000));
-        console.log(page);
+        var page = Math.min(_.random(flickrPages || 1), _.random(100));
         url += '&page=' + page;
         $http.get(url).then(function (response) {
           flickrPages = response.data.photos.pages;
-          var meta = response.data.photos.photo[0];
+          var meta = _.sample(response.data.photos.photo)
           var image_url = "https://farm"+meta.farm+".staticflickr.com/"+meta.server+"/"+meta.id+"_"+meta.secret+".jpg";
+          $scope.flickrImage = image_url;
           $p.loadImage(image_url, function (img) {
             flickrImage = img;
           })

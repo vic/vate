@@ -23,6 +23,8 @@
     "processing": "~1.4.13",
     "silabas": "*",
     "lodash": "~3.6.0",
-    "p5js": "~0.4.3"
+    "p5js": "~0.4.3",
+    "normalize.css": "~3.0.3",
+    "kube-framework": "~3.0.2"
   }
 }
