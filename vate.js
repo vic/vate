@@ -1,47 +1,155 @@
 angular.module('vate', [])
-  .service('VateService', VateService)
-  .directive('vateProcessing', ProcessingJSDirective)
+  .service('sketch', SketchService)
+  .directive('vateP5', P5Directive)
   .controller('VateCtrl', VateCtrl);
 
-function VateService () {
-  return {
-
-  };
-}
-
 function VateCtrl ($scope) {
-  $scope.hello = "Procesando";
-  $scope.world = "Poesía";
+  $scope.word = "Poema";
 }
 
-function Sketch ($scope, $p)  {
+function SketchService ($http) {
+  return function ($scope) {
+    return function ($p) {
 
-  $p.setup = function () {
-    $p.size(630, 360);  
-    var f =  $p.createFont("Arial", 24); 
-    $p.textFont(f);      
+      var fontSize = 32;
+      var radius = 100;
+      var center;
+      var bgImage;
+      var color;
+      var word;
+      var chars;
+      var charsCoords;
+      var syllables;
+      var syllableColors;
+
+      $p.setup = function setup() {
+        $p.resizeCanvas(400, 400);
+        $p.background(255);
+        $p.loadImage("dragonbebe.png", function(img) {
+          bgImage = img;
+        });
+      }
+
+      function setCharsCoords () {
+        charsCoords = {};
+
+        var angle = 360 / chars.length;
+
+        _.forEach(chars, function(chr, idx) {
+          var x = (Math.cos(angle * idx * (Math.PI / 180)) * radius)
+          var y = (Math.sin(angle * idx * (Math.PI / 180)) * radius)
+
+          charsCoords[chr] = {x: x + center.x, y: y + center.y}
+        })
+      }
+
+      var flickrImage, flickrEffect, flickrPages;
+      function flickrSearch() {
+        flickrEffect = $p.MULTIPLY;
+        var url = "https://api.flickr.com/services/rest/?method=flickr.photos.search&safe_search=1&api_key=d8e63434369d2ab77750623af9c84a22&format=json&nojsoncallback=1&per_page=1&tags="
+        url += word;
+        var page = Math.min(_.random(flickrPages || 1), _.random(100));
+        url += '&page=' + page;
+        $http.get(url).then(function (response) {
+          flickrPages = response.data.photos.pages;
+          var meta = _.sample(response.data.photos.photo)
+          var image_url = "https://farm"+meta.farm+".staticflickr.com/"+meta.server+"/"+meta.id+"_"+meta.secret+".jpg";
+          $scope.flickrImage = image_url;
+          $p.loadImage(image_url, function (img) {
+            flickrImage = img;
+          })
+        })
+      }
+
+      function charCenterCoords(chr) {
+        var coord = charsCoords[chr]
+        var x = coord.x + (fontSize * 0.30)
+        var y = coord.y - (fontSize * 0.30) 
+        return {x: x, y: y};
+      }
+
+      function drawClock () {
+        $p.stroke(0)
+        $p.fill(255)
+
+        _.forEach(charsCoords, function (coords, chr) {
+          $p.textSize(fontSize)
+          $p.text(chr, coords.x, coords.y)
+        })
+
+        _.forEach(syllables, function (syllable, idx) {
+          $p.strokeWeight(4);
+          $p.stroke.apply($p, syllableColors[syllable]);
+          $p.text(syllable, $p.width * 0.05, $p.height * 0.10 + (fontSize * 1.4 * idx))
+        });
+
+
+
+        $p.beginShape()
+        $p.noStroke();
+        $p.fill.apply($p, color);
+        _.forEach(syllables, function (syllable, idx) {
+
+          var chars = syllable.split('');
+          _.forEach(chars, function (chr, cdx) {
+            var coords = charCenterCoords(chr);
+            $p.curveVertex(coords.x, coords.y);
+          })
+
+        });
+        $p.endShape($p.CLOSE);
+
+      }
+
+      $p.mouseReleased = function () {
+        word = null;
+      }
+
+
+      $p.draw = function draw() {
+        $p.clear();
+
+        if (bgImage) {
+          $p.background(bgImage);
+          if (flickrImage) {
+            $p.blend(flickrImage, 0, 0, flickrImage.width, flickrImage.height, 0, 0, bgImage.width, bgImage.height, flickrEffect);
+          }
+        }
+
+        center = {x: $p.width * 0.50, y: $p.height * 0.50};
+
+        var newWord = ($scope.word + "").split(/\s/)[0]
+        if (word === newWord) {
+          return drawClock();
+        }
+
+        word = newWord;
+
+        flickrSearch();
+
+        chars = _.shuffle(_.uniq(word.split('')))
+        setCharsCoords();
+
+        color = [_.random(255), _.random(255), _.random(255), 100]
+
+        syllables = Silabas(word).syllables();
+        syllableColors = {}
+        _.forEach(syllables, function (syllable) {
+          syllableColors[syllable] = [_.random(255), _.random(255), _.random(255), 100]
+        });
+
+
+        drawClock(); 
+      }
+    }
   }
-
-  $p.draw = function draw () {
-    $p.background(102);
-    $p.fill(0);
-    $p.text($scope.hello, $p.width * 0.50, $p.height * 0.50);  
-    _.forEach( Silabas($scope.world).syllables(), function (syllable, idx) {
-       $p.text(syllable, $p.width * 0.10, $p.height * 0.10 + (idx * 32));
-    })
-  }
-
 }
 
-function ProcessingJSDirective () {
+function P5Directive (sketch) {
   return {
     restrict: 'A',
-    link: function ($scope, el, attrs) { 
-      Processing.disableInit();
-      var canvas = el.get(0);
-      new Processing(canvas, function (processing) {
-        Sketch($scope, processing) 
-      });
+    link: function ($scope, el, attrs) {
+      new p5(sketch($scope), el.get(0)) 
     }
-  };
+  }
 }

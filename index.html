@@ -2,16 +2,23 @@
 <html>
 <head>
   <title>Vate</title>
+  <link rel="stylesheet" type="text/css" href="bower_components/kube-framework/css/kube.css"/>
+  <link rel="stylesheet" type="text/css" href="vate.css"/>
   <script src='bower_components/lodash/lodash.js'></script>
   <script src='bower_components/jquery/dist/jquery.js'></script>
   <script src='bower_components/angular/angular.js'></script>
-  <script src='bower_components/processing/processing.js'></script>
+  <script src='bower_components/p5js/lib/p5.js'></script>
   <script src='bower_components/silabas/browser.js'></script>
   <script src='vate.js'></script>
 </head>
 <body ng-app="vate" ng-controller="VateCtrl">
-  <input type="text" ng-model="hello" /><br />
-  <input type="text" ng-model="world" /><br />
-  <canvas vate-processing></canvas>
+  <div>
+    <h1>Escribe una palabra</h1>
+    <div>
+        <input type="text" class="input-big unit-30"  ng-model="word" /><br />
+    </div>
+
+    <div vate-p5></div>
+  </div>
 </body>
 </html>
